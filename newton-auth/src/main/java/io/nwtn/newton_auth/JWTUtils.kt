@@ -29,6 +29,5 @@ object JWTUtils {
         } catch (e: Exception) {
             null
         }
-
     }
 }

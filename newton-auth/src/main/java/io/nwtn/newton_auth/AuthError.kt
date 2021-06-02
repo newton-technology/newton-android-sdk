@@ -34,8 +34,10 @@ class AuthError(val error: AuthErrorCode, val errorDescription: String?) {
 
     constructor(error: AuthErrorCode) : this(error, null)
 
-    constructor(jsonObject: JSONObject) : this(
+    constructor (jsonObject: JSONObject) : this(
         AuthErrorCode.fromString(jsonObject.getString("error")),
-        jsonObject.getString("error_description")
+        if (jsonObject.has("error_description"))
+            jsonObject.getString("error_description")
+        else null
     )
 }

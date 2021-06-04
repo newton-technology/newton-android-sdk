@@ -14,7 +14,7 @@ class NewtonAuthentication constructor(
         phoneNumber: String,
         callback: AuthResultCallback
     ) {
-        val parameters = mapOf<String, String>(
+        val parameters = mapOf(
             "client_id" to clientId,
             "grant_type" to "password",
             "phone_number" to phoneNumber
@@ -38,7 +38,7 @@ class NewtonAuthentication constructor(
             "client_id" to clientId,
             "grant_type" to "password"
         )
-        val headers = mapOf("Authorization" to "Bearer ${serviceToken}")
+        val headers = mapOf("Authorization" to "Bearer $serviceToken")
         return requestServiceToken(parameters, headers, callback)
     }
 
@@ -62,14 +62,14 @@ class NewtonAuthentication constructor(
         password: String?,
         callback: AuthResultCallback
     ) {
-        val parameters = mutableMapOf<String, String>(
+        val parameters = mutableMapOf(
             "client_id" to clientId,
             "grant_type" to "password"
         )
         if (password != null) {
             parameters["password"] = password
         }
-        val headers = mapOf<String, String>("Authorization" to "Bearer ${serviceToken}")
+        val headers = mapOf("Authorization" to "Bearer $serviceToken")
         return requestMainToken(parameters, headers, callback)
     }
 
@@ -95,7 +95,7 @@ class NewtonAuthentication constructor(
                 "grant_type" to "password",
                 "code" to code
         )
-        val headers = mapOf("Authorization" to "Bearer ${serviceToken}")
+        val headers = mapOf("Authorization" to "Bearer $serviceToken")
         return requestServiceToken(parameters, headers, callback)
     }
 

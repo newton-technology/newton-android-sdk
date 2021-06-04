@@ -1,13 +1,19 @@
 package io.nwtn.newton_auth
 
 import android.util.Log
-import okhttp3.*
 import org.json.JSONObject
 import java.io.IOException
 import java.util.concurrent.TimeUnit
 
-import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.RequestBody.Companion.toRequestBody
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.Response
+import okhttp3.Interceptor
+import okhttp3.MediaType
+import okhttp3.Call
+import okhttp3.Callback
+import okhttp3.RequestBody
+import okhttp3.FormBody
 
 private const val TAG = "AuthHttpController"
 private const val CONNECTION_TIMEOUT = 10
@@ -21,7 +27,7 @@ class AuthHttpController {
         var instance = AuthHttpController()
     }
 
-    class AuthException(override val message: String, val body: String): java.lang.Exception()
+    class AuthException(val code: Int, override val message: String, val body: String): java.lang.Exception()
 
     private class RetryInterceptor(): Interceptor {
         override fun intercept(chain: Interceptor.Chain): Response {
@@ -32,9 +38,9 @@ class AuthHttpController {
             while (!responseOK && tryCount < RETRY_MAX_COUNT) {
                 try {
                     response = chain.proceed(request)
-                    responseOK = response.isSuccessful || response.code in 400..499
+                    responseOK = response.isSuccessful || response.code() in 400..499
                 } catch (e: Exception) {
-                    Log.e(TAG, e.message, e)
+                    Log.e(TAG, "interceptor error ${e.message}", e)
                     Log.d(TAG, "request is not successful, retry ($tryCount)")
                 } finally {
                     try {
@@ -59,13 +65,15 @@ class AuthHttpController {
         headers: Map<String, String?>?,
         callback: AuthHttpCallback
     ) {
-        val data = JSONObject(parameters).toString()
-        val mediaType = "application/json; charset=utf-8".toMediaType()
+        var formBody = FormBody.Builder()
+        for ((k, v) in parameters) {
+            formBody = formBody.add(k, v)
+        }
         var builder = Request.Builder()
             .url(url)
             .header("Accept", "application/json")
             .header("Content-Type", "application/json")
-            .post(data.toRequestBody(mediaType))
+            .post(formBody.build())
 
         if (headers != null) {
             for ((key, value) in headers) {
@@ -82,30 +90,33 @@ class AuthHttpController {
     private fun sendRequest(request: Request, callback: AuthHttpCallback) {
         getClient().newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
-                Log.e(TAG, e.message, e)
+                Log.e(TAG, "error failure ${e.message}", e)
                 callback.onError(e, AuthError(AuthError.AuthErrorCode.unknownError))
             }
 
             override fun onResponse(call: Call, response: Response) {
                 try {
-                    val responseBody = response.body ?: throw AuthException("response fail", "")
+                    val responseBody = response.body() ?: throw AuthException(response.code(), "response fail", "")
                     val responseJson = responseBody.string()
                     if (!response.isSuccessful) {
-                        throw AuthException("response fail", responseBody.string())
+                        throw AuthException(response.code(), "response fail", responseJson)
                     }
                     try {
-                        callback.onSuccess(response.code, JSONObject(responseJson))
+                        callback.onSuccess(response.code(), JSONObject(responseJson))
                     } catch (e: Exception) {
-                        callback.onSuccess(response.code, null)
+                        Log.e(TAG, "http request exception", e)
+                        callback.onSuccess(response.code(), null)
                     }
                 } catch (e: AuthException) {
+                    Log.e(TAG, "auth exception ${e.code} ${e.message} body ${e.body}", e)
                     try {
                         callback.onError(e, AuthError(JSONObject(e.body)))
                     } catch (e: Exception) {
+                        Log.e(TAG, "auth error parse exception ${e.message}", e)
                         callback.onError(e,  AuthError(AuthError.AuthErrorCode.unknownError))
                     }
                 } catch (e: Exception) {
-                    Log.e(TAG, "http request exception", e)
+                    Log.e(TAG, "http request exception ${e.message}", e)
                     callback.onError(e, AuthError(AuthError.AuthErrorCode.unknownError))
                 }
             }

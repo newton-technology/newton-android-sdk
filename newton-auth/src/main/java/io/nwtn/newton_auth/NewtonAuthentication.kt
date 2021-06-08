@@ -4,10 +4,10 @@ import org.json.JSONObject
 import java.lang.Exception
 
 class NewtonAuthentication constructor(
-        private var url: String,
-        private var clientId: String,
-        private var realm: String,
-        private var serviceRealm: String
+    private var url: String,
+    private var clientId: String,
+    private var realm: String,
+    private var serviceRealm: String
 ) {
 
     fun sendPhoneCode(
@@ -38,8 +38,7 @@ class NewtonAuthentication constructor(
             "client_id" to clientId,
             "grant_type" to "password"
         )
-        val headers = mapOf("Authorization" to "Bearer $serviceToken")
-        return requestServiceToken(parameters, headers, callback)
+        return requestServiceToken(parameters, serviceToken, callback)
     }
 
     fun verifyEmail(
@@ -69,8 +68,7 @@ class NewtonAuthentication constructor(
         if (password != null) {
             parameters["password"] = password
         }
-        val headers = mapOf("Authorization" to "Bearer $serviceToken")
-        return requestMainToken(parameters, headers, callback)
+        return requestMainToken(parameters, serviceToken, callback)
     }
 
     fun refreshToken(
@@ -91,45 +89,46 @@ class NewtonAuthentication constructor(
         callback: AuthResultCallback
     ) {
         val parameters = mapOf(
-                "client_id" to clientId,
-                "grant_type" to "password",
-                "code" to code
+            "client_id" to clientId,
+            "grant_type" to "password",
+            "code" to code
         )
-        val headers = mapOf("Authorization" to "Bearer $serviceToken")
-        return requestServiceToken(parameters, headers, callback)
+        return requestServiceToken(parameters, serviceToken, callback)
     }
 
     private fun requestServiceToken(
-            parameters: Map<String, String>,
-            callback: AuthResultCallback
+        parameters: Map<String, String>,
+        callback: AuthResultCallback
     ) {
         return requestAccessToken(serviceRealm, parameters, null, callback)
     }
 
     private fun requestServiceToken(
-            parameters: Map<String, String>,
-            headers: Map<String, String>?,
-            callback: AuthResultCallback
+        parameters: Map<String, String>,
+        authorizationToken: String?,
+        callback: AuthResultCallback
     ) {
-        return requestAccessToken(serviceRealm, parameters, headers, callback)
+        return requestAccessToken(serviceRealm, parameters, authorizationToken, callback)
     }
 
     private fun requestMainToken(
         parameters: Map<String, String>,
-        headers: Map<String, String>?,
+        authorizationToken: String?,
         callback: AuthResultCallback
     ) {
-        return requestAccessToken(realm, parameters, headers, callback)
+        return requestAccessToken(realm, parameters, authorizationToken, callback)
     }
 
     private fun requestAccessToken(
         currentRealm: String,
         parameters: Map<String, String>,
-        headers: Map<String, String>?,
+        authorizationToken: String?,
         callback: AuthResultCallback
     ) {
         val requestUrl = "${url}/auth/realms/${currentRealm}/protocol/openid-connect/token"
         val httpController = AuthHttpController.instance
+
+        val headers: Map<String, String>? = if (authorizationToken != null) mapOf("Authorization" to "Bearer $authorizationToken") else null
 
         httpController.post(
             requestUrl,
@@ -146,6 +145,12 @@ class NewtonAuthentication constructor(
                     }
                 }
                 override fun onError(error: Exception, errorData: AuthError) {
+                    if (errorData.error == AuthError.AuthErrorCode.invalidGrant &&
+                            authorizationToken != null &&
+                            JWTUtils.tokenExpired(authorizationToken)) {
+                        callback.onError(AuthError(AuthError.AuthErrorCode.tokenExpired, "Authorization token expired"))
+                        return
+                    }
                     callback.onError(errorData)
                 }
             }

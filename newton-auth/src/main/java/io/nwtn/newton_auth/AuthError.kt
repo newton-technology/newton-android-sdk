@@ -19,6 +19,7 @@ class AuthError(val error: AuthErrorCode, val errorDescription: String?) {
         emailInUse("email_in_use"),
         realmDisabled("realm_disabled"),
         codeAlreadySubmitted("code_already_submitted"),
+        tokenExpired("token_expired"),
         unknownError("unknown_error");
 
         companion object {

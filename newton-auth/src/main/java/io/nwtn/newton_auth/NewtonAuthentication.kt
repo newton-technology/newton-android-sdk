@@ -83,6 +83,18 @@ class NewtonAuthentication constructor(
         return requestMainToken(parameters, null, callback)
     }
 
+    fun requestPasswordReset(
+        serviceToken: String,
+        callback: AuthResultCallback
+    ) {
+        val parameters = mapOf<String, String>(
+            "client_id" to clientId,
+            "grant_type" to "password",
+            "reset_password" to "true"
+        )
+        requestServiceToken(parameters, serviceToken, callback)
+    }
+
     private fun verifyCode(
         code: String,
         serviceToken: String,

@@ -9,10 +9,8 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
 import okhttp3.Interceptor
-import okhttp3.MediaType
 import okhttp3.Call
 import okhttp3.Callback
-import okhttp3.RequestBody
 import okhttp3.FormBody
 
 private const val TAG = "AuthHttpController"
@@ -67,7 +65,9 @@ class AuthHttpController {
     ) {
         var formBody = FormBody.Builder()
         for ((k, v) in parameters) {
-            formBody = formBody.add(k, v)
+            if (v != null) {
+                formBody = formBody.add(k, v)
+            }
         }
         var builder = Request.Builder()
             .url(url)
@@ -130,5 +130,4 @@ class AuthHttpController {
             .addInterceptor(RetryInterceptor())
         return builder.build()
     }
-
 }

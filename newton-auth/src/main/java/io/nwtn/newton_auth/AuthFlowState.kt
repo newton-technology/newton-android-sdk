@@ -45,4 +45,6 @@ class AuthFlowState(jsonObject: JSONObject) {
     val loginStep: LoginStep = LoginStep.fromString(jsonObject.getString("login_step"))
     val maskedEmail: String? = if (jsonObject.has("masked_email")) jsonObject.getString("masked_email") else null
     val phoneNumber: String? = if (jsonObject.has("phone_number")) jsonObject.getString("phone_number") else null
+    val codeExpiresTimestamp: Int? = if (jsonObject.has("code_expires_timestamp")) jsonObject.getInt("code_expires_timestamp") else null
+    val codeCanBeResubmittedTimestamp: Int? = if (jsonObject.has("code_can_be_resubmitted_timestamp")) jsonObject.getInt("code_can_be_resubmitted_timestamp") else null
 }

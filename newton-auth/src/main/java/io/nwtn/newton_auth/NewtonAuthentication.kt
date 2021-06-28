@@ -31,14 +31,25 @@ class NewtonAuthentication constructor(
     }
 
     fun sendEmailCode(
+            email: String?,
+            serviceToken: String,
+            callback: AuthResultCallback
+    ) {
+        val parameters = mutableMapOf(
+                "client_id" to clientId,
+                "grant_type" to "password"
+        )
+        if (email != null) {
+            parameters.put("email", email)
+        }
+        return requestServiceToken(parameters, serviceToken, callback)
+    }
+
+    fun sendEmailCode(
         serviceToken: String,
         callback: AuthResultCallback
     ) {
-        val parameters = mapOf(
-            "client_id" to clientId,
-            "grant_type" to "password"
-        )
-        return requestServiceToken(parameters, serviceToken, callback)
+        return sendEmailCode(null, serviceToken, callback)
     }
 
     fun verifyEmail(

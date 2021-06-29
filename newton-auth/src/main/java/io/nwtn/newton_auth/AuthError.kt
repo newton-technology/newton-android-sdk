@@ -20,7 +20,8 @@ class AuthError(val error: AuthErrorCode, val errorDescription: String?) {
         realmDisabled("realm_disabled"),
         codeAlreadySubmitted("code_already_submitted"),
         tokenExpired("token_expired"),
-        unknownError("unknown_error");
+        unknownError("unknown_error"),
+        serverError("server_error");
 
         companion object {
             fun fromString(value: String): AuthErrorCode {

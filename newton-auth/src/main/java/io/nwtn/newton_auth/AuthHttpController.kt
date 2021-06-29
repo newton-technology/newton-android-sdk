@@ -36,7 +36,7 @@ class AuthHttpController {
             while (!responseOK && tryCount < RETRY_MAX_COUNT) {
                 try {
                     response = chain.proceed(request)
-                    responseOK = response.isSuccessful || response.code() in 400..499
+                    responseOK = response.isSuccessful || response.code() in 400..500
                 } catch (e: Exception) {
                     Log.e(TAG, "interceptor error ${e.message}", e)
                     Log.d(TAG, "request is not successful, retry ($tryCount)")
@@ -110,6 +110,10 @@ class AuthHttpController {
                 } catch (e: AuthException) {
                     Log.e(TAG, "auth exception ${e.code} ${e.message} body ${e.body}", e)
                     try {
+                        if (e.code == 500) {
+                            callback.onError(e,  AuthError(AuthError.AuthErrorCode.serverError))
+                            return
+                        }
                         callback.onError(e, AuthError(JSONObject(e.body)))
                     } catch (e: Exception) {
                         Log.e(TAG, "auth error parse exception ${e.message}", e)

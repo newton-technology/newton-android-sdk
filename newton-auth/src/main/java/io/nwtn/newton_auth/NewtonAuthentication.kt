@@ -32,7 +32,6 @@ class NewtonAuthentication constructor(
 
     fun sendEmailCode(
             email: String?,
-            resetPassword: Boolean,
             serviceToken: String,
             callback: AuthResultCallback
     ) {
@@ -41,10 +40,7 @@ class NewtonAuthentication constructor(
                 "grant_type" to "password"
         )
         if (email != null) {
-            parameters["email"] = email
-        }
-        if (resetPassword) {
-            parameters["reset_password"] = "true"
+            parameters.put("email", email)
         }
         return requestServiceToken(parameters, serviceToken, callback)
     }
@@ -53,7 +49,7 @@ class NewtonAuthentication constructor(
         serviceToken: String,
         callback: AuthResultCallback
     ) {
-        return sendEmailCode(null, false, serviceToken, callback)
+        return sendEmailCode(null, serviceToken, callback)
     }
 
     fun verifyEmail(

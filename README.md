@@ -68,8 +68,9 @@ newtonAuth.login(
     object: AuthResultCallback {
         override fun onError(error: AuthError) {}
         override fun onSuccess(authResult: AuthResult, authFlowState: AuthFlowState?) {
-            // main access token here
+            // main access token and refresh token here
             Log.i("NEWTON_AUTH", authResult.accessToken)
+            Log.i("NEWTON_AUTH", authResult.refreshToken)
         }
     }
 )

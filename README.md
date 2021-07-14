@@ -2,17 +2,14 @@
 
 Android SDK to work with Newton services
 
-## Requirements
+## Table of Contents
 
-TODO
+- [Newton Auth](#newton-auth)
+- [Author](#author)
 
 ## Newton Auth
 
 SDK to integrate login with Newton authentication service based on Keycloak
-
-#### Installation
-
-TODO
 
 #### Getting started
 
@@ -25,15 +22,15 @@ import io.nwtn.newton_auth.authentication
 2. request phone code to start authentication flow
 ```kotlin
 val newtonAuth = authentication(
-    NEWTON_AUTH_URL,
-    NEWTON_AUTH_CLIENT_ID, 
-    "main", 
-    "service"
+    NEWTON_AUTH_URL, // Newton auth server url
+    NEWTON_AUTH_CLIENT_ID, // Newton auth client id
+    "main", // main realm name
+    "service" // service realm name
 )
 
 newtonAuth.sendPhoneCode(
-    PHONE_NUMBER,
-    object: AuthResultCallback {
+    PHONE_NUMBER, // user phone number
+    object: AuthResultCallback { // result callback
         override fun onError(error: AuthError) {
             Log.i("NEWTON_AUTH", error.error.text)
         }
@@ -49,9 +46,9 @@ newtonAuth.sendPhoneCode(
 
 ```kotlin
 newtonAuth.verifyPhone(
-    CODE,
-    SERVICE_TOKEN,
-    object: AuthResultCallback {
+    CODE, // phone received by user
+    SERVICE_TOKEN, // service token received from previous step
+    object: AuthResultCallback { // result callback
         override fun onError(error: AuthError) {}
         override fun onSuccess(authResult: AuthResult, authFlowState: AuthFlowState?) {
             // service access token here
@@ -64,8 +61,25 @@ newtonAuth.verifyPhone(
 3. sign in with service token from previous step and get access token and refresh token
 ```kotlin
 newtonAuth.login(
-    SERVICE_TOKEN,
-    object: AuthResultCallback {
+    SERVICE_TOKEN, // service token received from previous step
+    object: AuthResultCallback { // result callback
+        override fun onError(error: AuthError) {}
+        override fun onSuccess(authResult: AuthResult, authFlowState: AuthFlowState?) {
+            // main access token and refresh token here
+            Log.i("NEWTON_AUTH", authResult.accessToken)
+            Log.i("NEWTON_AUTH", authResult.refreshToken)
+        }
+    }
+)
+```
+
+or if user signs in with password
+
+```kotlin
+newtonAuth.login(
+    SERVICE_TOKEN, // service token received from previous step
+    PASSWORD, // user password
+    object: AuthResultCallback { // result callback
         override fun onError(error: AuthError) {}
         override fun onSuccess(authResult: AuthResult, authFlowState: AuthFlowState?) {
             // main access token and refresh token here

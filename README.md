@@ -42,7 +42,7 @@ newtonAuth.sendPhoneCode(
 )
 ```
 
-2. verify phone code with service token from previous step
+3. verify phone code with service token from previous step
 
 ```kotlin
 newtonAuth.verifyPhone(
@@ -58,7 +58,7 @@ newtonAuth.verifyPhone(
 )
 ```
 
-3. sign in with service token from previous step and get access token and refresh token
+4. sign in with service token from previous step and get access token and refresh token
 ```kotlin
 newtonAuth.login(
     SERVICE_TOKEN, // service token received from previous step
@@ -90,7 +90,7 @@ newtonAuth.login(
 )
 ```
 
-4. get new access token with refresh token
+5. get new access token with refresh token
 ```kotlin
 newtonAuth.refreshToken(
     REFRESH_TOKEN,

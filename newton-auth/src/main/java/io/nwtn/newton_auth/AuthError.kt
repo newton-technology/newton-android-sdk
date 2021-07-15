@@ -2,8 +2,18 @@ package io.nwtn.newton_auth
 
 import org.json.JSONObject
 
+/**
+ * authorization error
+ *
+ * @param[error] authentication error code
+ * @param[errorDescription] error description text
+ * @constructor returns new authentication error
+ */
 class AuthError(val error: AuthErrorCode, val errorDescription: String?) {
 
+    /**
+     * authorization error code
+     */
     enum class AuthErrorCode(val text: String) {
         unsupportedGrantType("unsupported_grant_type"),
         invalidClient("invalid_client"),

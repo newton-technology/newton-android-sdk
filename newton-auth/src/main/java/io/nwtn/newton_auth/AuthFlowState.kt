@@ -3,7 +3,16 @@ package io.nwtn.newton_auth
 import org.json.JSONException
 import org.json.JSONObject
 
+/**
+ * Newton authentication flow state
+ *
+ * @param[jsonObject] object with auth flow state data
+ */
 class AuthFlowState(jsonObject: JSONObject) {
+
+    /**
+     * login flow
+     */
     enum class LoginFlow(val text: String) {
         shortFlow("SHORT"),
         normal("NORMAL"),
@@ -22,6 +31,9 @@ class AuthFlowState(jsonObject: JSONObject) {
 
     }
 
+    /**
+     * login step
+     */
     enum class LoginStep(val text: String) {
         sendPhoneCode("SEND_PHONE_CODE"),
         verifyPhoneCode("VERIFY_PHONE_CODE"),
@@ -41,10 +53,33 @@ class AuthFlowState(jsonObject: JSONObject) {
         }
     }
 
+    /**
+     * login flow
+     */
     val loginFlow: LoginFlow = LoginFlow.fromString(jsonObject.getString("login_flow"))
+
+    /**
+     * current login step
+     */
     val loginStep: LoginStep = LoginStep.fromString(jsonObject.getString("login_step"))
+
+    /**
+     * masked user email
+     */
     val maskedEmail: String? = if (jsonObject.has("masked_email")) jsonObject.getString("masked_email") else null
+
+    /**
+     * user phone number
+     */
     val phoneNumber: String? = if (jsonObject.has("phone_number")) jsonObject.getString("phone_number") else null
+
+    /**
+     * timestamp of code expiration time (for verifyPhoneCode and verifyEmailCode login steps)
+     */
     val codeExpiresTimestamp: Int? = if (jsonObject.has("code_expires_timestamp")) jsonObject.getInt("code_expires_timestamp") else null
+
+    /**
+     * timestamp of when code can be resubmitted (for verifyPhoneCode and verifyEmailCode login steps)
+     */
     val codeCanBeResubmittedTimestamp: Int? = if (jsonObject.has("code_can_be_resubmitted_timestamp")) jsonObject.getInt("code_can_be_resubmitted_timestamp") else null
 }

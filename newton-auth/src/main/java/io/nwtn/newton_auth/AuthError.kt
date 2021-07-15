@@ -31,7 +31,8 @@ class AuthError(val error: AuthErrorCode, val errorDescription: String?) {
         codeAlreadySubmitted("code_already_submitted"),
         tokenExpired("token_expired"),
         unknownError("unknown_error"),
-        serverError("server_error");
+        serverError("server_error"),
+        attemptsOtpCheckExceeded("attempts_otp_check_exceeded");
 
         companion object {
             fun fromString(value: String): AuthErrorCode {

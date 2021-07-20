@@ -4,10 +4,6 @@ plugins {
     id 'kotlin-android'
 }
 
-repositories {
-    mavenCentral()
-}
-
 android {
     compileSdkVersion 29
     buildToolsVersion "29.0.3"
@@ -56,8 +52,10 @@ dependencies {
 
 apply plugin: 'maven-publish'
 
+
 def getVersionName = { ->
-    return "0.0.24"
+    String version = new File("$projectDir/VERSION").text
+    return version
 }
 
 def getArtifactId = { ->
@@ -65,12 +63,28 @@ def getArtifactId = { ->
 }
 
 publishing {
+   repositories {
+        maven {
+            name = "newtonreleases"
+            url = "https://nexus.newton-technology.ru/repository/maven-releases/"
+            credentials {
+                username = "$System.env.NEXUS_USERNAME"
+                password = "$System.env.NEXUS_PASSWORD"
+            }
+        }
+    }
     publications {
-        bar(MavenPublication) {
+        maven2(MavenPublication) {
             groupId 'io.nwtn.newton-android-sdk'
             artifactId getArtifactId()
             version getVersionName()
             artifact("$buildDir/outputs/aar/${getArtifactId()}-release.aar")
         }
+    }
+}
+
+task updateVersion()  {
+    doLast {
+        new File(projectDir, "VERSION").text = System.getProperty("args")
     }
 }

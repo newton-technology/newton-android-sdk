@@ -2,8 +2,18 @@ package io.nwtn.newton_auth
 
 import org.json.JSONObject
 
+/**
+ * authorization error
+ *
+ * @param[error] authentication error code
+ * @param[errorDescription] error description text
+ * @constructor returns new authentication error
+ */
 class AuthError(val error: AuthErrorCode, val errorDescription: String?) {
 
+    /**
+     * authorization error code
+     */
     enum class AuthErrorCode(val text: String) {
         unsupportedGrantType("unsupported_grant_type"),
         invalidClient("invalid_client"),
@@ -21,7 +31,8 @@ class AuthError(val error: AuthErrorCode, val errorDescription: String?) {
         codeAlreadySubmitted("code_already_submitted"),
         tokenExpired("token_expired"),
         unknownError("unknown_error"),
-        serverError("server_error");
+        serverError("server_error"),
+        attemptsOtpCheckExceeded("attempts_otp_check_exceeded");
 
         companion object {
             fun fromString(value: String): AuthErrorCode {

@@ -3,13 +3,27 @@ package io.nwtn.newton_auth
 import org.json.JSONObject
 import java.lang.Exception
 
+/**
+ * Main authentication class
+ *
+ * @param[url] Newton auth server url
+ * @param[clientId] Newton auth server client id used
+ * @param[realm] the name of newton auth server realm
+ * @param[serviceRealm] the name of newton auth server service realm
+ * @constructor created new NewtonAuthentication instance
+ */
 class NewtonAuthentication constructor(
     private var url: String,
     private var clientId: String,
     private var realm: String,
     private var serviceRealm: String
 ) {
-
+    /**
+     * requests a phone code to start authentication flow
+     *
+     * @param[phoneNumber] user phone number
+     * @param[callback] authentication result callback
+     */
     fun sendPhoneCode(
         phoneNumber: String,
         callback: AuthResultCallback
@@ -22,6 +36,13 @@ class NewtonAuthentication constructor(
         return requestServiceToken(parameters, callback)
     }
 
+    /**
+     * verifies phone with code
+     *
+     * @param[code] code received by user after successful sendPhoneCode request
+     * @param[serviceToken] access token received on previous flow step
+     * @param[callback] authentication result callback
+     */
     fun verifyPhone(
         code: String,
         serviceToken: String,
@@ -30,6 +51,13 @@ class NewtonAuthentication constructor(
         return verifyCode(code, serviceToken, callback)
     }
 
+    /**
+     * requests an email code to continue authentication flow
+     *
+     * @param[email] user email (optional)
+     * @param[serviceToken] access token received on previous flow step
+     * @param[callback] authentication result callback
+     */
     fun sendEmailCode(
             email: String?,
             serviceToken: String,
@@ -45,6 +73,12 @@ class NewtonAuthentication constructor(
         return requestServiceToken(parameters, serviceToken, callback)
     }
 
+    /**
+     * requests an email code to continue authentication flow for user that already has an email
+     *
+     * @param[serviceToken] access token received on previous flow step
+     * @param[callback] authentication result callback
+     */
     fun sendEmailCode(
         serviceToken: String,
         callback: AuthResultCallback
@@ -52,6 +86,13 @@ class NewtonAuthentication constructor(
         return sendEmailCode(null, serviceToken, callback)
     }
 
+    /**
+     * verifies email with code
+     *
+     * @param[code] email code received by user after successful sendEmailCode request
+     * @param[serviceToken] access token received on previous flow step
+     * @param[callback] authentication result callback
+     */
     fun verifyEmail(
         code: String,
         serviceToken: String,
@@ -60,6 +101,12 @@ class NewtonAuthentication constructor(
         return verifyCode(code, serviceToken, callback)
     }
 
+    /**
+     * signs in user with service token (for short login flow only)
+     *
+     * @param[serviceToken] access token received on previous flow step
+     * @param[callback] authentication result callback
+     */
     fun login(
         serviceToken: String,
         callback: AuthResultCallback
@@ -67,6 +114,13 @@ class NewtonAuthentication constructor(
         return login(serviceToken, null, callback)
     }
 
+    /**
+     * signs in user with password and service token (for short login flow only)
+     *
+     * @param[password] users existing (for normal login flow) or new (for normal with email login flow) password
+     * @param[serviceToken] access token received on previous flow step
+     * @param[callback] authentication result callback
+     */
     fun login(
         serviceToken: String,
         password: String?,
@@ -82,6 +136,12 @@ class NewtonAuthentication constructor(
         return requestMainToken(parameters, serviceToken, callback)
     }
 
+    /**
+     * requests new access and refresh token with current refresh token
+     *
+     * @param[refreshToken] current refresh token
+     * @param[callback] authentication result callback
+     */
     fun refreshToken(
         refreshToken: String,
         callback: AuthResultCallback
@@ -94,6 +154,12 @@ class NewtonAuthentication constructor(
         return requestMainToken(parameters, null, callback)
     }
 
+    /**
+     * starts password reset with normal with email login flow
+     *
+     * @param[serviceToken] access token that is valid to start password reset
+     * @param[callback] authentication result callback
+     */
     fun requestPasswordReset(
         serviceToken: String,
         callback: AuthResultCallback

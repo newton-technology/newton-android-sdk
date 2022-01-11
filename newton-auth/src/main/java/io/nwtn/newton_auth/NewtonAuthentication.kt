@@ -1,5 +1,6 @@
 package io.nwtn.newton_auth
 
+import okhttp3.Headers
 import org.json.JSONObject
 import java.lang.Exception
 
@@ -189,7 +190,7 @@ class NewtonAuthentication constructor(
         parameters: Map<String, String>,
         callback: AuthResultCallback
     ) {
-        return requestAccessToken(serviceRealm, parameters, null, callback)
+        return requestAccessToken(serviceRealm, parameters, null, false, callback)
     }
 
     private fun requestServiceToken(
@@ -197,7 +198,7 @@ class NewtonAuthentication constructor(
         authorizationToken: String?,
         callback: AuthResultCallback
     ) {
-        return requestAccessToken(serviceRealm, parameters, authorizationToken, callback)
+        return requestAccessToken(serviceRealm, parameters, authorizationToken, false, callback)
     }
 
     private fun requestMainToken(
@@ -205,13 +206,14 @@ class NewtonAuthentication constructor(
         authorizationToken: String?,
         callback: AuthResultCallback
     ) {
-        return requestAccessToken(realm, parameters, authorizationToken, callback)
+        return requestAccessToken(realm, parameters, authorizationToken, true, callback)
     }
 
     private fun requestAccessToken(
         currentRealm: String,
         parameters: Map<String, String>,
         authorizationToken: String?,
+        updateMainTokenData: Boolean,
         callback: AuthResultCallback
     ) {
         val requestUrl = "${url}/auth/realms/${currentRealm}/protocol/openid-connect/token"
@@ -224,10 +226,13 @@ class NewtonAuthentication constructor(
             parameters,
             headers,
             object : AuthHttpCallback {
-                override fun onSuccess(responseCode: Int, jsonObject: JSONObject?) {
+                override fun onSuccess(responseCode: Int, jsonObject: JSONObject?, headers: Headers?) {
                     try {
                         val result = AuthResult(jsonObject!!)
                         val flowState = JWTUtils.decodeAuthFlowState(result.accessToken)
+                        if (updateMainTokenData) {
+                            AccessTokenData.updateTokenData(result.accessToken, headers)
+                        }
                         callback.onSuccess(result, flowState)
                     } catch (e: Exception) {
                         callback.onError(AuthError(AuthError.AuthErrorCode.unknownError))

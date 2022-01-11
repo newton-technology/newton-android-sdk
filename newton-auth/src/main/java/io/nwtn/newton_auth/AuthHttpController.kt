@@ -102,10 +102,10 @@ class AuthHttpController {
                         throw AuthException(response.code(), "response fail", responseJson)
                     }
                     try {
-                        callback.onSuccess(response.code(), JSONObject(responseJson))
+                        callback.onSuccess(response.code(), JSONObject(responseJson), response.headers())
                     } catch (e: Exception) {
                         Log.e(TAG, "http request exception", e)
-                        callback.onSuccess(response.code(), null)
+                        callback.onSuccess(response.code(), null, null)
                     }
                 } catch (e: AuthException) {
                     Log.e(TAG, "auth exception ${e.code} ${e.message} body ${e.body}", e)

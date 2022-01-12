@@ -229,7 +229,7 @@ class NewtonAuthentication constructor(
                 override fun onSuccess(responseCode: Int, jsonObject: JSONObject?, headers: Headers?) {
                     try {
                         val result = AuthResult(jsonObject!!)
-                        val flowState = JWTUtils.decodeAuthFlowState(result.accessToken)
+                        val flowState = JWTUtils.decodeAuthFlowState(result.accessToken, headers)
                         if (updateMainTokenData) {
                             AccessTokenData.updateTokenData(result.accessToken, headers)
                         }

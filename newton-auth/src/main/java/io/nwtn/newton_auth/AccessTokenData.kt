@@ -3,7 +3,6 @@ package io.nwtn.newton_auth
 import okhttp3.Headers
 import org.json.JSONException
 import org.json.JSONObject
-import java.util.*
 
 object AccessTokenData {
 
@@ -20,23 +19,19 @@ object AccessTokenData {
         private set
 
     fun updateTokenData(jwtToken: String?, headers: Headers?) {
-        if (jwtToken == null) {
+        if (jwtToken == null || headers == null) {
+            accessToken = null
+            localExpirationTime = null
             return
         }
         accessToken = jwtToken
-        if (headers != null) {
-            updateExpirationData(jwtToken, headers)
-        }
+        updateExpirationData(jwtToken, headers)
     }
 
     private fun updateExpirationData(token: String, headers: Headers) {
-        val headerDate = headers.getDate("Date") ?: return
-        val now = Date()
-        val delta = now.time - headerDate.time
         val expTimeFromToken = getAccessTokenExpirationTime(token) ?: return
-        localExpirationTime = expTimeFromToken + delta
+        localExpirationTime = TimestampUtils.getTimestampInLocalTime(expTimeFromToken, headers)
     }
-
 
     private fun getAccessTokenExpirationTime(token: String): Double? {
         val payload: JSONObject? = JWTUtils.decode(token)

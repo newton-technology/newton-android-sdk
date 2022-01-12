@@ -23,7 +23,7 @@ class JWTUtilsTest {
         assertEquals(decoded?.loginStep, AuthFlowState.LoginStep.verifyPhoneCode)
         assertNotNull("no code expires timestamp", decoded?.codeExpiresTimestamp)
         assertNotNull("no code resubmit timestamp", decoded?.codeCanBeResubmittedTimestamp)
-        assertEquals(decoded?.codeExpiresTimestamp, 1624001027)
+        assertEquals(1624001027, decoded?.codeExpiresTimestamp)
     }
 
     @Test

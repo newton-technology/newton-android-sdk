@@ -1,6 +1,7 @@
 package io.nwtn.newton_auth
 
 import android.util.Base64
+import okhttp3.Headers
 import org.json.JSONException
 import org.json.JSONObject
 import java.lang.Exception
@@ -16,13 +17,17 @@ object JWTUtils {
         return decodeJWTPart(segments[1])
     }
 
-    fun decodeAuthFlowState(jwt: String): AuthFlowState? {
+    fun decodeAuthFlowState(jwt: String, headers: Headers?): AuthFlowState? {
         return try {
             val data = decode(jwt)
-            AuthFlowState(data!!)
+            AuthFlowState(data!!, headers)
         } catch (e: Exception) {
             null
         }
+    }
+
+    fun decodeAuthFlowState(jwt: String): AuthFlowState? {
+        return decodeAuthFlowState(jwt, null)
     }
 
     fun tokenExpired(jwt: String): Boolean {

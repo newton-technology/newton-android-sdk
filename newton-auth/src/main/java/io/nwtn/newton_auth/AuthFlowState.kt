@@ -1,15 +1,14 @@
 package io.nwtn.newton_auth
 
-import okhttp3.Headers
-import org.json.JSONException
 import org.json.JSONObject
+import java.util.*
 
 /**
  * Newton authentication flow state
  *
  * @param[jsonObject] object with auth flow state data
  */
-class AuthFlowState(jsonObject: JSONObject, headers: Headers?) {
+class AuthFlowState(jsonObject: JSONObject, responseDate: Date?) {
 
     constructor(jsonObject: JSONObject) : this(jsonObject, null)
 
@@ -79,10 +78,18 @@ class AuthFlowState(jsonObject: JSONObject, headers: Headers?) {
     /**
      * timestamp of code expiration time (for verifyPhoneCode and verifyEmailCode login steps)
      */
-    val codeExpiresTimestamp: Int? = TimestampUtils.getExpirationTimeInSeconds(jsonObject, "code_expires_timestamp", headers)?.toInt()
+    val codeExpiresTimestamp: Int? = TimestampUtils.getExpirationTimeInSeconds(
+            jsonObject,
+            "code_expires_timestamp",
+            responseDate
+    )?.toInt()
 
     /**
      * timestamp of when code can be resubmitted (for verifyPhoneCode and verifyEmailCode login steps)
      */
-    val codeCanBeResubmittedTimestamp: Int? = TimestampUtils.getExpirationTimeInSeconds(jsonObject, "code_can_be_resubmitted_timestamp", headers)?.toInt()
+    val codeCanBeResubmittedTimestamp: Int? = TimestampUtils.getExpirationTimeInSeconds(
+            jsonObject,
+            "code_can_be_resubmitted_timestamp",
+            responseDate
+    )?.toInt()
 }

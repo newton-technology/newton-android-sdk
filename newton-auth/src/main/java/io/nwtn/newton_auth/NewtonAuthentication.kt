@@ -226,13 +226,13 @@ class NewtonAuthentication constructor(
             parameters,
             headers,
             object : AuthHttpCallback {
-                override fun onSuccess(responseCode: Int, jsonObject: JSONObject?, headers: Headers?) {
+                override fun onSuccess(responseCode: Int, jsonObject: JSONObject?, responseHeaders: Headers?) {
                     try {
-                        val result = AuthResult(jsonObject!!)
-                        val flowState = JWTUtils.decodeAuthFlowState(result.accessToken, headers)
-                        if (updateMainTokenData) {
-                            AccessTokenData.updateTokenData(result.accessToken, headers)
-                        }
+                        val result = AuthResult(jsonObject!!, responseHeaders?.getDate("Date"))
+                        val flowState = JWTUtils.decodeAuthFlowState(
+                                result.accessToken,
+                                responseHeaders?.getDate("Date")
+                        )
                         callback.onSuccess(result, flowState)
                     } catch (e: Exception) {
                         callback.onError(AuthError(AuthError.AuthErrorCode.unknownError))

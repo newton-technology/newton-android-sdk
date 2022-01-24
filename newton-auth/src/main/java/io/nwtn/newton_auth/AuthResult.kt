@@ -1,13 +1,14 @@
 package io.nwtn.newton_auth
 
 import org.json.JSONObject
+import java.util.*
 
 /**
  * authentication result received after successful authentication
  *
  * @param[jsonObject] object with auth result data
  */
-class AuthResult(jsonObject: JSONObject) {
+class AuthResult(jsonObject: JSONObject, responseDate: Date?) {
     /**
      * access token (JSON web token)
      */
@@ -32,4 +33,13 @@ class AuthResult(jsonObject: JSONObject) {
      * access token type (e.g. "Bearer")
      */
     val tokenType: String = jsonObject.getString("token_type")
+
+    /**
+     * access token expiration time in local time
+     */
+    val localExpirationTime = TimestampUtils.getExpirationTimeInMillis(
+            JWTUtils.decode(accessToken),
+            "exp",
+            responseDate
+    )
 }

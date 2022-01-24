@@ -11,9 +11,16 @@ class AuthResultTest {
 
     @Test
     fun `should correctly parse result with access token`() {
-        val result = AuthResult(JSONObject(RESULT))
+        val result = AuthResult(JSONObject(RESULT), null)
         assertEquals(result.accessTokenExpiresIn, 300)
         assertEquals(result.tokenType, "Bearer")
+    }
+
+    @Test
+    fun `should correctly parse result with non null exp date`() {
+        val result = AuthResult(JSONObject(RESULT_2), null)
+        assertEquals(1643002305, result.localExpirationTime?.toInt())
+        assertNotNull(result.localExpirationTime)
     }
 
 }
@@ -24,6 +31,16 @@ private const val RESULT = """
         "expires_in": 300,
         "refresh_expires_in": 1800,
         "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICI1NjQ3YTU4Yy1jNmJjLTQ4ODYtOGM4NC1lMDY4MjVhNjhjMzYifQ.eyJleHAiOjE2MTk2MDI2NTIsImlhdCI6MTYxOTYwMDg1MiwianRpIjoiYTc3MGQxM2YtZDA5OC00ZjZhLThjYjUtYTM0OThmMzk1MWFkIiwiaXNzIjoiaHR0cHM6Ly9rZXljbG9hay5uZXd0b24tdGVjaG5vbG9neS5ydS9hdXRoL3JlYWxtcy9zZXJ2aWNlIiwiYXVkIjoiaHR0cHM6Ly9rZXljbG9hay5uZXd0b24tdGVjaG5vbG9neS5ydS9hdXRoL3JlYWxtcy9zZXJ2aWNlIiwic3ViIjoicGhvbmU6Kzc5MjIyNzIzNDI3IiwidHlwIjoiUmVmcmVzaCIsImF6cCI6InRlemlzIiwic2Vzc2lvbl9zdGF0ZSI6IjEwMjFiOTU4LTgyZmMtNDQwNS04MzZhLWVmZDE3MDEzM2JjNCIsInNjb3BlIjoiIn0.giDqjh-7LgOOR9h_Mgeu6_E_4llyaM456miJp_oPRgE",
+        "token_type": "Bearer"
+    }
+"""
+
+private const val RESULT_2 = """
+    {
+        "access_token": "eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJYb3FYMFVUbXVpSmIzekFtTDRPRldMdUFZQ0Q0dTRHUG9VaVh2VGxuT01FIn0.eyJleHAiOjE2NDMwMDIzMDUsImlhdCI6MTY0MzAwMjAwNSwianRpIjoiNWI3YzY4NTktOTE2MC00M2JkLTgzOWYtOTc2MjdkMmJmNTllIiwiaXNzIjoiaHR0cHM6Ly9rZXljbG9hay5uZXd0b24tdGVjaG5vbG9neS5ydS9hdXRoL3JlYWxtcy9tYWluIiwiYXVkIjpbInBob25lX251bWJlcl92ZXJpZmllZCIsInVzZXJfcmVnaXN0ZXJlZCIsImFjY291bnQiXSwic3ViIjoiZjliOWM2NzItZWNmYS00MTIwLWFiMGItY2M5ZDk2OTRiN2E4IiwidHlwIjoiQmVhcmVyIiwiYXpwIjoibW9iaWxlIiwic2Vzc2lvbl9zdGF0ZSI6ImQyZjFmNWQzLTBmMjAtNGE1OC05OGMyLTU1Y2U4MzlmMTE0NSIsInBob25lX251bWJlciI6Iis3OTIyMjcyMzQyNyIsInBob25lX251bWJlcl92ZXJpZmllZCI6dHJ1ZSwiYWNyIjoiMSIsInJlYWxtX2FjY2VzcyI6eyJyb2xlcyI6WyJvZmZsaW5lX2FjY2VzcyIsInVtYV9hdXRob3JpemF0aW9uIl19LCJyZXNvdXJjZV9hY2Nlc3MiOnsiYWNjb3VudCI6eyJyb2xlcyI6WyJtYW5hZ2UtYWNjb3VudCIsIm1hbmFnZS1hY2NvdW50LWxpbmtzIiwidmlldy1wcm9maWxlIl19fSwic2NvcGUiOiJlbWFpbCBwcm9maWxlIG9mZmxpbmVfYWNjZXNzIiwic2lkIjoiZDJmMWY1ZDMtMGYyMC00YTU4LTk4YzItNTVjZTgzOWYxMTQ1IiwiYm9fY2xpZW50X2lkIjoiTlREZXZfXzgwNCIsImVtYWlsX3ZlcmlmaWVkIjpmYWxzZSwidXNlcl9pZCI6ODA0LCJsb2dpbl9mbG93IjoiTk9STUFMIiwicHJlZmVycmVkX3VzZXJuYW1lIjoiODA0IiwidG9rZW5fdHlwZSI6IkFDQ0VTUyIsIm1hc2tlZF9lbWFpbCI6Im1pKioqKioqKioqKkAqKioqKi4qKioifQ.QSXKmEx3iQ30gFn_A2vObCT7QY-sN5U2DsR56jg3OkWtk_7f589Y6um4RpGDEJlcQ5UioC_wleSB_tZHpI2-te4ZfB2Lu5RLop_Q_Dg6GjNdK4cufmBJEeIaa2GY0gx9MIunIa5_QSvZ0X5_C0YD5hjjUbLxuDbr3ESTGa7Uu9k7QpeGE8p_vBrLQKuamQI6WeVq85AEXs52x6MyIQRgpwBDC9TjK1dw6QxK2pMMW0Ds7nUGyzytyXsav29bIj6ziVy1CcSd_9aQ9meTK7kteD0mjuX_8uoe8CRMIX99B6jQMvtRGCNu4yxLHoIBVN8EDJ9NbBYRJd1wDFtNoJ6XkA",
+        "expires_in": 300,
+        "refresh_expires_in": 1800,
+        "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJhODZjZDc5ZC03NDk5LTRlOTUtYTcxZS1mZTE0NjI0ODIzM2MifQ.eyJpYXQiOjE2NDMwMDIwMDUsImp0aSI6IjRlMzJlNTNjLTFjMWQtNDNjNS1iMGUwLTQ3OGEzZWY4MjhiNCIsImlzcyI6Imh0dHBzOi8va2V5Y2xvYWsubmV3dG9uLXRlY2hub2xvZ3kucnUvYXV0aC9yZWFsbXMvbWFpbiIsImF1ZCI6Imh0dHBzOi8va2V5Y2xvYWsubmV3dG9uLXRlY2hub2xvZ3kucnUvYXV0aC9yZWFsbXMvbWFpbiIsInN1YiI6ImY5YjljNjcyLWVjZmEtNDEyMC1hYjBiLWNjOWQ5Njk0YjdhOCIsInR5cCI6Ik9mZmxpbmUiLCJhenAiOiJtb2JpbGUiLCJzZXNzaW9uX3N0YXRlIjoiZDJmMWY1ZDMtMGYyMC00YTU4LTk4YzItNTVjZTgzOWYxMTQ1Iiwic2NvcGUiOiJlbWFpbCBwcm9maWxlIG9mZmxpbmVfYWNjZXNzIiwic2lkIjoiZDJmMWY1ZDMtMGYyMC00YTU4LTk4YzItNTVjZTgzOWYxMTQ1In0.CjmwVctHZxH7MV8WfC25i4Wg6CdXh48IWFLQ-wKrr0I",
         "token_type": "Bearer"
     }
 """

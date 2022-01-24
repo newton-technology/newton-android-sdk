@@ -1,58 +1,60 @@
 package io.nwtn.newton_auth
 
-import okhttp3.Headers
 import org.json.JSONObject
 import java.lang.Exception
 import java.util.*
 
 object TimestampUtils {
 
-    private const val HEADER_KEY_DATE = "Date";
-
     fun getExpirationTimeInMillis(
-            jsonObject: JSONObject,
+            jsonObject: JSONObject?,
             timestampKey: String,
-            headers: Headers?
+            responseDate: Date?
     ): Double? {
+        if (jsonObject == null) {
+            return null
+        }
         if (!jsonObject.has(timestampKey)) {
             return null
         }
         return try {
-            getExpirationTimeInMillis(jsonObject.getDouble(timestampKey), headers)
+            getExpirationTimeInMillis(jsonObject.getDouble(timestampKey), responseDate)
         } catch (e: Exception) {
             null
         }
     }
 
     fun getExpirationTimeInSeconds(
-        jsonObject: JSONObject,
+        jsonObject: JSONObject?,
         timestampKey: String,
-        headers: Headers?
+        responseDate: Date?
     ): Double? {
-        val ts = getExpirationTimeInMillis(jsonObject, timestampKey, headers)
+        val ts = getExpirationTimeInMillis(jsonObject, timestampKey, responseDate)
         return getTimeInSeconds(ts)
     }
 
-    fun getExpirationTimeInMillis(timestamp: Double?, headers: Headers?): Double? {
+    fun getExpirationTimeInMillis(timestamp: Double?, responseDate: Date?): Double? {
         if (timestamp == null) {
             return null
         }
         val timestampInMillis = timestamp * 1000
-        if (headers == null) {
+        if (responseDate == null) {
             return timestampInMillis
         }
-        return getTimestampInLocalTime(timestampInMillis, headers)
+        return getTimestampInLocalTime(timestampInMillis, responseDate)
     }
 
-    fun getExpirationTimeInSeconds(timestamp: Double, headers: Headers?): Double? {
-        val ts = getExpirationTimeInMillis(timestamp, headers)
+    fun getExpirationTimeInSeconds(timestamp: Double, responseDate: Date?): Double? {
+        val ts = getExpirationTimeInMillis(timestamp, responseDate)
         return getTimeInSeconds(ts)
     }
 
-    fun getTimestampInLocalTime(timestamp: Double, headers: Headers): Double {
-        val headerDate = headers.getDate(HEADER_KEY_DATE) ?: return timestamp
+    fun getTimestampInLocalTime(timestamp: Double, responseDate: Date?): Double {
+        if (responseDate == null) {
+            return timestamp
+        }
         val now = Date()
-        val delta = now.time - headerDate.time
+        val delta = now.time - responseDate.time
         return timestamp + delta
     }
 

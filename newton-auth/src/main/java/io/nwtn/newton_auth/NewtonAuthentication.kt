@@ -3,6 +3,7 @@ package io.nwtn.newton_auth
 import okhttp3.Headers
 import org.json.JSONObject
 import java.lang.Exception
+import java.util.*
 
 /**
  * Main authentication class
@@ -226,12 +227,18 @@ class NewtonAuthentication constructor(
             parameters,
             headers,
             object : AuthHttpCallback {
-                override fun onSuccess(responseCode: Int, jsonObject: JSONObject?, responseHeaders: Headers?) {
+                override fun onSuccess(responseCode: Int, jsonObject: JSONObject?, headers: Headers?) {
+                    var responseDate: Date? = null
+                    headers?.names()?.forEach {
+                        if (it.equals("date", true)) {
+                            responseDate = headers.getDate(it);
+                        }
+                    }
                     try {
-                        val result = AuthResult(jsonObject!!, responseHeaders?.getDate("Date"))
+                        val result = AuthResult(jsonObject!!, responseDate)
                         val flowState = JWTUtils.decodeAuthFlowState(
                                 result.accessToken,
-                                responseHeaders?.getDate("Date")
+                                responseDate
                         )
                         callback.onSuccess(result, flowState)
                     } catch (e: Exception) {

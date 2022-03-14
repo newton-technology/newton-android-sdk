@@ -17,10 +17,10 @@ object JWTUtils {
         return decodeJWTPart(segments[1])
     }
 
-    fun decodeAuthFlowState(jwt: String, headers: Headers?): AuthFlowState? {
+    fun decodeAuthFlowState(jwt: String, responseDate: Date?): AuthFlowState? {
         return try {
             val data = decode(jwt)
-            AuthFlowState(data!!, headers)
+            AuthFlowState(data!!, responseDate)
         } catch (e: Exception) {
             null
         }

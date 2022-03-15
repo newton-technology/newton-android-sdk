@@ -92,7 +92,7 @@ class AuthFlowState(jsonObject: JSONObject, responseDate: Date?) {
             "code_can_be_resubmitted_timestamp",
             responseDate
     )?.toInt()
-a
+
     /**
      * OTP checks left in current flow
      */

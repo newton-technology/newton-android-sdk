@@ -9,7 +9,12 @@ import org.json.JSONObject
  * @param[errorDescription] error description text
  * @constructor returns new authentication error
  */
-class AuthError(val error: AuthErrorCode, val errorDescription: String?) {
+class AuthError(
+    val error: AuthErrorCode,
+    val errorDescription: String?,
+    val otpChecksLeft: Int?,
+    val otpSendsLeft: Int?
+) {
 
     /**
      * authorization error code
@@ -32,7 +37,29 @@ class AuthError(val error: AuthErrorCode, val errorDescription: String?) {
         tokenExpired("token_expired"),
         unknownError("unknown_error"),
         serverError("server_error"),
-        attemptsOtpCheckExceeded("attempts_otp_check_exceeded");
+        attemptsOtpCheckExceeded("attempts_otp_check_exceeded"),
+        /// Password is blacklisted
+        invalidPasswordBlacklisted("invalid_password_blacklisted"),
+        /// Password has too few digits
+        invalidPasswordMinDigits("invalid_password_min_digits"),
+        /// Password was recently used
+        invalidPasswordHistory("invalid_password_history"),
+        /// Password if too short
+        invalid_password_min_length("invalid_password_min_length"),
+        /// Password has too few lower case chars
+        invalidPasswordMinLowerCaseChars("invalid_password_min_lower_case_chars"),
+        /// Password is too long
+        invalidPasswordMaxLength("invalid_password_max_length"),
+        /// Password equals email
+        invalidPasswordNotEmail("invalid_password_not_email"),
+        /// Password equals username
+        invalidPasswordNotUsername("invalid_password_not_username"),
+        /// Invalid password regex pattern
+        invalidPasswordRegexPattern("invalid_password_regex_pattern"),
+        /// Password has too few special symbols
+        invalidPasswordMinSpecialChars("invalid_password_min_special_chars"),
+        /// Password has too few uppercase symbols
+        invalidPasswordMinUpperCaseChars("invalid_password_min_upper_case_chars");
 
         companion object {
             fun fromString(value: String): AuthErrorCode {
@@ -46,12 +73,20 @@ class AuthError(val error: AuthErrorCode, val errorDescription: String?) {
         }
     }
 
-    constructor(error: AuthErrorCode) : this(error, null)
+    constructor(error: AuthErrorCode, errorDescription: String?) : this(error, errorDescription, null, null)
+
+    constructor(error: AuthErrorCode) : this(error, null, null, null)
 
     constructor (jsonObject: JSONObject) : this(
         AuthErrorCode.fromString(jsonObject.getString("error")),
         if (jsonObject.has("error_description"))
             jsonObject.getString("error_description")
+        else null,
+        if (jsonObject.has("otp_checks_left"))
+            jsonObject.getInt("otp_checks_left")
+        else null,
+        if (jsonObject.has("otp_sends_left"))
+            jsonObject.getInt("otp_sends_left")
         else null
     )
 }

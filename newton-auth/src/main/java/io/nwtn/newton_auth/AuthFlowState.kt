@@ -92,4 +92,14 @@ class AuthFlowState(jsonObject: JSONObject, responseDate: Date?) {
             "code_can_be_resubmitted_timestamp",
             responseDate
     )?.toInt()
+
+    /**
+     * OTP checks left in current flow
+     */
+    val otpChecksLeft: Int? = if (jsonObject.has("otp_checks_left")) jsonObject.getInt("otp_checks_left") else null
+
+    /**
+     * OTP checks left in current flow
+     */
+    val otpSendsLeft: Int? = if (jsonObject.has("otp_sends_left")) jsonObject.getInt("otp_sends_left") else null
 }

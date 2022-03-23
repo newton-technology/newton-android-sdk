@@ -186,6 +186,28 @@ class NewtonAuthentication constructor(
         return requestServiceToken(parameters, serviceToken, callback)
     }
 
+    fun setPin(pin: String, authorizationToken: String?, callback: AuthSimpleCallback) {
+        val url = "${url}/auth/realms/${realm}/pin"
+        val httpController = AuthHttpController.instance
+        val headers: Map<String, String>? = if (authorizationToken != null) mapOf("Authorization" to "Bearer $authorizationToken") else null
+        val parameters = mapOf<String, String>(
+            "pin" to pin,
+        )
+        httpController.get(
+            url,
+            parameters,
+            headers,
+            object : AuthHttpCallback {
+                override fun onSuccess(responseCode: Int, jsonObject: JSONObject?, responseHeaders: Headers?) {
+                    callback.onSuccess()
+                }
+                override fun onError(error: Exception, errorData: AuthError) {
+                    callback.onError(errorData)
+                }
+            }
+        )
+    }
+
     private fun requestServiceToken(
         parameters: Map<String, String>,
         callback: AuthResultCallback

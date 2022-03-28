@@ -141,18 +141,36 @@ class NewtonAuthentication constructor(
      * requests new access and refresh token with current refresh token
      *
      * @param[refreshToken] current refresh token
+     * @param[pin] server saved pin
      * @param[callback] authentication result callback
      */
-    fun refreshToken(
+    fun refreshAccessToken(
         refreshToken: String,
+        pin: String?,
         callback: AuthResultCallback
     ) {
-        val parameters = mapOf<String, String>(
+        val parameters = mutableMapOf<String, String>(
             "client_id" to clientId,
             "grant_type" to "refresh_token",
             "refresh_token" to refreshToken
         )
+        if (pin != null) {
+            parameters["pin"] = pin
+        }
         return requestMainToken(parameters, null, callback)
+    }
+
+    /**
+     * requests new access and refresh token with current refresh token
+     *
+     * @param[refreshToken] current refresh token
+     * @param[callback] authentication result callback
+     */
+    fun refreshAccessToken(
+        refreshToken: String,
+        callback: AuthResultCallback
+    ) {
+        return refreshAccessToken(refreshToken, null, callback)
     }
 
     /**

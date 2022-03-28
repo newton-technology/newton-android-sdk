@@ -59,7 +59,9 @@ class AuthError(
         /// Password has too few special symbols
         invalidPasswordMinSpecialChars("invalid_password_min_special_chars"),
         /// Password has too few uppercase symbols
-        invalidPasswordMinUpperCaseChars("invalid_password_min_upper_case_chars");
+        invalidPasswordMinUpperCaseChars("invalid_password_min_upper_case_chars"),
+        /// Invalid pin
+        invalidPin("invalid_pin");
 
         companion object {
             fun fromString(value: String): AuthErrorCode {

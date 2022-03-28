@@ -141,18 +141,36 @@ class NewtonAuthentication constructor(
      * requests new access and refresh token with current refresh token
      *
      * @param[refreshToken] current refresh token
+     * @param[pin] server saved pin
      * @param[callback] authentication result callback
      */
-    fun refreshToken(
+    fun refreshAccessToken(
         refreshToken: String,
+        pin: String?,
         callback: AuthResultCallback
     ) {
-        val parameters = mapOf<String, String>(
+        val parameters = mutableMapOf<String, String>(
             "client_id" to clientId,
             "grant_type" to "refresh_token",
             "refresh_token" to refreshToken
         )
+        if (pin != null) {
+            parameters["pin"] = pin
+        }
         return requestMainToken(parameters, null, callback)
+    }
+
+    /**
+     * requests new access and refresh token with current refresh token
+     *
+     * @param[refreshToken] current refresh token
+     * @param[callback] authentication result callback
+     */
+    fun refreshAccessToken(
+        refreshToken: String,
+        callback: AuthResultCallback
+    ) {
+        return refreshAccessToken(refreshToken, null, callback)
     }
 
     /**
@@ -184,6 +202,28 @@ class NewtonAuthentication constructor(
             "code" to code
         )
         return requestServiceToken(parameters, serviceToken, callback)
+    }
+
+    fun setPin(pin: String, authorizationToken: String?, callback: AuthSimpleCallback) {
+        val url = "${url}/auth/realms/${realm}/pin"
+        val httpController = AuthHttpController.instance
+        val headers: Map<String, String>? = if (authorizationToken != null) mapOf("Authorization" to "Bearer $authorizationToken") else null
+        val parameters = mapOf<String, String>(
+            "pin" to pin,
+        )
+        httpController.get(
+            url,
+            parameters,
+            headers,
+            object : AuthHttpCallback {
+                override fun onSuccess(responseCode: Int, jsonObject: JSONObject?, responseHeaders: Headers?) {
+                    callback.onSuccess()
+                }
+                override fun onError(error: Exception, errorData: AuthError) {
+                    callback.onError(errorData)
+                }
+            }
+        )
     }
 
     private fun requestServiceToken(

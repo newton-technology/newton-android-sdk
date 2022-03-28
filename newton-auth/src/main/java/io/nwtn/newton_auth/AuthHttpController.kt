@@ -12,6 +12,7 @@ import okhttp3.Interceptor
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.FormBody
+import okhttp3.HttpUrl
 
 private const val TAG = "AuthHttpController"
 private const val CONNECTION_TIMEOUT = 10
@@ -55,6 +56,41 @@ class AuthHttpController {
             }
             return response
         }
+    }
+
+    fun get(url: String,
+            parameters: Map<String, String?>,
+            headers: Map<String, String?>?,
+            callback: AuthHttpCallback
+    ) {
+        val urlBuilder = HttpUrl.parse(url)?.newBuilder()
+
+        if (urlBuilder == null) {
+            callback.onError(java.lang.Exception("error"), AuthError(AuthError.AuthErrorCode.unknownError))
+            return
+        }
+        for ((k, v) in parameters) {
+            if (v != null) {
+                urlBuilder.addQueryParameter(k, v)
+            }
+        }
+        val requestUrl = urlBuilder.build()
+
+        var builder = Request.Builder()
+            .url(requestUrl)
+            .header("Accept", "application/json")
+            .header("Content-Type", "application/json")
+            .get()
+
+        if (headers != null) {
+            for ((key, value) in headers) {
+                if (value != null) {
+                    builder = builder.addHeader(key, value)
+                }
+            }
+        }
+        val request = builder.build()
+        sendRequest(request, callback)
     }
 
     fun post(
